@@ -30,16 +30,19 @@ import android.webkit.WebStorage;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.GeolocationPermissions.Callback;
+import android.widget.TextView;
 
 public class InAppChromeClient extends WebChromeClient {
 
     private CordovaWebView webView;
+    private TextView mPageTitle;
     private String LOG_TAG = "InAppChromeClient";
     private long MAX_QUOTA = 100 * 1024 * 1024;
 
-    public InAppChromeClient(CordovaWebView webView) {
+    public InAppChromeClient(CordovaWebView webView, TextView mPageTitle) {
         super();
         this.webView = webView;
+        this.mPageTitle = mPageTitle;
     }
     /**
      * Handle database quota exceeded notification.
@@ -130,4 +133,9 @@ public class InAppChromeClient extends WebChromeClient {
         return false;
     }
 
+    @Override
+    public void onReceivedTitle(WebView view, String title) {
+        super.onReceivedTitle(view, title);
+        mPageTitle.setText(title);
+    }
 }
