@@ -44,6 +44,11 @@
                 <param name="android-package" value="org.apache.cordova.inappbrowser.InAppBrowser"/>
             </feature>
         </config-file>
+        
+		<config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+		</config-file>
 
         <source-file src="src/android/InAppBrowser.java" target-dir="src/org/apache/cordova/inappbrowser" />
         <source-file src="src/android/InAppBrowserDialog.java" target-dir="src/org/apache/cordova/inappbrowser" />
@@ -69,6 +74,9 @@
 
         <header-file src="src/ios/CDVInAppBrowser.h" />
 	    <source-file src="src/ios/CDVInAppBrowser.m" />
+	    
+	    <resource-file src="src/ios/res/ic_action_remove.png" />
+	    <resource-file src="src/ios/res/iab_background.png" />
 	    
 	    <framework src="CoreGraphics.framework" />
     </platform>

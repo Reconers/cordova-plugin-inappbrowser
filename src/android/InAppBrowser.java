@@ -21,6 +21,8 @@ package org.apache.cordova.inappbrowser;
 import android.annotation.SuppressLint;
 import org.apache.cordova.inappbrowser.InAppBrowserDialog;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -51,6 +53,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.HttpAuthHandler;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -114,6 +117,8 @@ public class InAppBrowser extends CordovaPlugin {
     private boolean clearSessionCache = false;
     private boolean hadwareBackButton = true;
     private boolean mediaPlaybackRequiresUserGesture = false;
+
+    private InAppChromeClient client;
 
     /**
      * Executes the request and returns PluginResult.
@@ -463,6 +468,23 @@ public class InAppBrowser extends CordovaPlugin {
         this.inAppWebView.requestFocus();
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        if (requestCode == client.FILECHOOSER_NORMAL_REQ_CODE) {
+            if (client.filePathCallbackNormal == null) return ;
+            Uri result = (intent == null || resultCode != Activity.RESULT_OK) ? null : intent.getData();
+            client.filePathCallbackNormal.onReceiveValue(result);
+            client.filePathCallbackNormal = null;
+        }
+        else if (requestCode == client.FILECHOOSER_LOLLIPOP_REQ_CODE) {
+            if (client.filePathCallbackLollipop == null) return ;
+            client.filePathCallbackLollipop.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, intent));
+            client.filePathCallbackLollipop = null;
+        }
+
+    }
 
     /**
      * Should we show the location bar?
@@ -616,7 +638,9 @@ public class InAppBrowser extends CordovaPlugin {
                 inAppWebView = new WebView(cordova.getActivity());
                 inAppWebView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
                 inAppWebView.setId(Integer.valueOf(6));
-                inAppWebView.setWebChromeClient(new InAppChromeClient(thatWebView, pageTitle));
+
+                client = new InAppChromeClient(InAppBrowser.this, thatWebView, pageTitle);
+                inAppWebView.setWebChromeClient(client);
                 WebViewClient client = new InAppBrowserClient(thatWebView, pageAddress);
                 inAppWebView.setWebViewClient(client);
                 WebSettings settings = inAppWebView.getSettings();
@@ -644,6 +668,8 @@ public class InAppBrowser extends CordovaPlugin {
                 } else if (clearSessionCache) {
                     CookieManager.getInstance().removeSessionCookie();
                 }
+
+
 
                 inAppWebView.loadUrl(url);
                 inAppWebView.setId(Integer.valueOf(6));

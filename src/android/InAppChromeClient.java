@@ -18,13 +18,19 @@
 */
 package org.apache.cordova.inappbrowser;
 
+import org.apache.cordova.CordovaInterface;
+import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.LOG;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.util.Log;
 import android.webkit.JsPromptResult;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebStorage;
 import android.webkit.WebView;
@@ -34,13 +40,20 @@ import android.widget.TextView;
 
 public class InAppChromeClient extends WebChromeClient {
 
+    private CordovaPlugin plugin;
     private CordovaWebView webView;
     private TextView mPageTitle;
     private String LOG_TAG = "InAppChromeClient";
     private long MAX_QUOTA = 100 * 1024 * 1024;
 
-    public InAppChromeClient(CordovaWebView webView, TextView mPageTitle) {
+    public ValueCallback<Uri> filePathCallbackNormal;
+    public ValueCallback<Uri[]> filePathCallbackLollipop;
+    public final static int FILECHOOSER_NORMAL_REQ_CODE = 1;
+    public final static int FILECHOOSER_LOLLIPOP_REQ_CODE = 2;
+
+    public InAppChromeClient(CordovaPlugin plugin, CordovaWebView webView, TextView mPageTitle) {
         super();
+        this.plugin = plugin;
         this.webView = webView;
         this.mPageTitle = mPageTitle;
     }
@@ -137,5 +150,44 @@ public class InAppChromeClient extends WebChromeClient {
     public void onReceivedTitle(WebView view, String title) {
         super.onReceivedTitle(view, title);
         mPageTitle.setText(title);
+    }
+    // For Android < 3.0
+    public void openFileChooser( ValueCallback<Uri> uploadMsg) {
+        Log.d("MainActivity", "3.0 <");
+        openFileChooser(uploadMsg, "");
+    }
+    // For Android 3.0+
+    public void openFileChooser( ValueCallback<Uri> uploadMsg, String acceptType) {
+        Log.d("MainActivity", "3.0+");
+        filePathCallbackNormal = uploadMsg;
+        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.setType("image/*");
+
+        plugin.cordova.startActivityForResult(plugin, Intent.createChooser(i, "File Chooser"), FILECHOOSER_NORMAL_REQ_CODE);
+    }
+    // For Android 4.1+
+    public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType, String capture) {
+        Log.d("MainActivity", "4.1+");
+        openFileChooser(uploadMsg, acceptType);
+    }
+
+    // For Android 5.0+
+    public boolean onShowFileChooser(
+            WebView webView, ValueCallback<Uri[]> filePathCallback,
+            WebChromeClient.FileChooserParams fileChooserParams) {
+        Log.d("MainActivity", "5.0+");
+        if (filePathCallbackLollipop != null) {
+            filePathCallbackLollipop.onReceiveValue(null);
+            filePathCallbackLollipop = null;
+        }
+        filePathCallbackLollipop = filePathCallback;
+        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.setType("image/*");
+
+        plugin.cordova.startActivityForResult(plugin, Intent.createChooser(i, "File Chooser"), FILECHOOSER_NORMAL_REQ_CODE);
+
+        return true;
     }
 }
