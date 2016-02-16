@@ -186,7 +186,7 @@ public class InAppChromeClient extends WebChromeClient {
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("image/*");
 
-        plugin.cordova.startActivityForResult(plugin, Intent.createChooser(i, "File Chooser"), FILECHOOSER_NORMAL_REQ_CODE);
+        plugin.cordova.startActivityForResult(plugin, Intent.createChooser(i, "File Chooser"), FILECHOOSER_LOLLIPOP_REQ_CODE);
 
         return true;
     }
