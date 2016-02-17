@@ -649,8 +649,11 @@ public class InAppBrowser extends CordovaPlugin {
                 settings.setBuiltInZoomControls(showZoomControls);
                 settings.setPluginState(android.webkit.WebSettings.PluginState.ON);
 
-                String userAgent = preferences.getString("OverrideUserAgent", null);
-                if (userAgent != null && !userAgent.isEmpty()) settings.setUserAgentString(userAgent);
+                String overrideUserAgent = preferences.getString("OverrideUserAgent", null);
+                if (overrideUserAgent != null && !overrideUserAgent.isEmpty()) settings.setUserAgentString(overrideUserAgent);
+
+                String appendUserAgent = preferences.getString("AppendUserAgent", null);
+                if (appendUserAgent != null && !appendUserAgent.isEmpty()) settings.setUserAgentString(settings.getUserAgentString() + appendUserAgent);
 
                 if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
                     settings.setMediaPlaybackRequiresUserGesture(mediaPlaybackRequiresUserGesture);
