@@ -563,6 +563,15 @@ public class InAppBrowser extends CordovaPlugin {
             }
 
             @SuppressLint("NewApi")
+            private void webviewSet() {
+                try {
+                    inAppWebView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+                }
+                catch (Exception ex) {
+                }
+            }
+
+            @SuppressLint("NewApi")
             public void run() {
 
                 // CB-6702 InAppBrowser hangs when opening more than one instance
@@ -648,6 +657,10 @@ public class InAppBrowser extends CordovaPlugin {
                 settings.setJavaScriptCanOpenWindowsAutomatically(true);
                 settings.setBuiltInZoomControls(showZoomControls);
                 settings.setPluginState(android.webkit.WebSettings.PluginState.ON);
+
+                if( android.os.Build.VERSION.SDK_INT >=  android.os.Build.VERSION_CODES.LOLLIPOP ) {
+                    this.webviewSet();
+                }
 
                 String overrideUserAgent = preferences.getString("OverrideUserAgent", null);
                 if (overrideUserAgent != null && !overrideUserAgent.isEmpty()) settings.setUserAgentString(overrideUserAgent);
