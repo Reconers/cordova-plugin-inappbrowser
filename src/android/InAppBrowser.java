@@ -681,16 +681,9 @@ public class InAppBrowser extends CordovaPlugin {
                 }
                 /////////////////////////////////////////////////////////////////////////////////////////
 
-
-                WebSettings settings = inAppWebView.getSettings();
-                settings.setJavaScriptEnabled(true);
-                settings.setJavaScriptCanOpenWindowsAutomatically(true);
-                settings.setBuiltInZoomControls(showZoomControls);
-                settings.setPluginState(android.webkit.WebSettings.PluginState.ON);
-
-                if( android.os.Build.VERSION.SDK_INT >=  android.os.Build.VERSION_CODES.LOLLIPOP ) {
-                    this.webviewSet();
-                }
+//                if( android.os.Build.VERSION.SDK_INT >=  android.os.Build.VERSION_CODES.LOLLIPOP ) {
+//                   this.webviewSet();
+//                }
 
                 String overrideUserAgent = preferences.getString("OverrideUserAgent", null);
                 if (overrideUserAgent != null && !overrideUserAgent.isEmpty()) settings.setUserAgentString(overrideUserAgent);
