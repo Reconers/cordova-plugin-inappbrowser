@@ -652,6 +652,36 @@ public class InAppBrowser extends CordovaPlugin {
                 inAppWebView.setWebChromeClient(client);
                 WebViewClient client = new InAppBrowserClient(thatWebView, pageAddress);
                 inAppWebView.setWebViewClient(client);
+
+				/// 롤리팝 카드 결제 오류 관련 추가
+                //1. 웹뷰 캐시 제거
+                inAppWebView.clearHistory();
+                inAppWebView.clearCache(true);
+                inAppWebView.clearView();
+                //2. 쿠키매니저 캐시 제거
+                CookieSyncManager cookieSyncManager = CookieSyncManager.createInstance(cordova.getActivity());
+                CookieManager cookieManager = CookieManager.getInstance();
+                cookieManager.setAcceptCookie(true);
+                cookieManager.removeSessionCookie();
+                cookieSyncManager.sync();
+
+
+                WebSettings settings = inAppWebView.getSettings();
+                settings.setJavaScriptEnabled(true);
+                settings.setJavaScriptCanOpenWindowsAutomatically(true);
+                settings.setBuiltInZoomControls(showZoomControls);
+                settings.setPluginState(android.webkit.WebSettings.PluginState.ON);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+                }
+                cookieManager = CookieManager.getInstance();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    cookieManager.setAcceptThirdPartyCookies(inAppWebView, true);
+                }
+                /////////////////////////////////////////////////////////////////////////////////////////
+
+
                 WebSettings settings = inAppWebView.getSettings();
                 settings.setJavaScriptEnabled(true);
                 settings.setJavaScriptCanOpenWindowsAutomatically(true);
